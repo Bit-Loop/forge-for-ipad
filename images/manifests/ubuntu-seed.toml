@@ -1,0 +1,28 @@
+schema = 1
+id = "ubuntu-seed"
+label = "Ubuntu 26.04 LTS Forge Seed"
+kind = "qemu-vm"
+architecture = "aarch64"
+source = "ubuntu-26.04-arm64-cloudimg"
+forge_channel = "stable"
+upstream_channel = "release"
+disk_format = "qcow2"
+disk_size_gib = 64
+firmware = "uefi"
+machine = "virt"
+provisioner = "provision/ubuntu.sh"
+packs = ["core", "cpp", "rust", "python", "containers", "lxc", "xfce"]
+seed = true
+
+[runtime]
+default_vcpus = 8
+default_memory_mib = 8192
+minimum_memory_mib = 3072
+network = "virtio-net"
+storage = "virtio-blk"
+display = "virtio-gpu"
+balloon = true
+
+[health]
+command = "/usr/local/bin/forge-guest-health --json"
+required = ["agent", "ssh", "compiler.c", "compiler.cpp", "rust", "python", "docker", "lxc"]

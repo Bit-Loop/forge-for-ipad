@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.invalid/schemas/guest-agent-v1.json",
+  "title": "Forge guest agent request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "token", "id", "method"],
+  "properties": {
+    "version": {"const": 1},
+    "token": {"type": "string", "minLength": 32},
+    "id": {"type": ["string", "integer"]},
+    "method": {"enum": ["capabilities", "checkpoint", "health", "ping"]},
+    "params": {"type": "object"}
+  }
+}

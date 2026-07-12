@@ -1,0 +1,11 @@
+Forge for iPad
+Copyright 2026 Isaiah Tyler Jackson
+
+Forge-authored source is licensed under Apache License 2.0.
+
+Planned third-party runtime components include UTM (Apache-2.0), QEMU and
+associated libraries ((L)GPL), Runestone, SwiftTerm, SwiftNIO/Citadel,
+GRDB, WAMR, MLX Swift, Ubuntu, Manjaro ARM, and Arch Linux ARM. Release
+tooling must generate a complete component inventory, license texts, source
+references, and corresponding-source bundle before any public binary is
+marked stable. This notice is not a substitute for that generated inventory.

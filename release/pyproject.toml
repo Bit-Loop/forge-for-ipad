@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "forge-release"
+version = "0.1.0"
+description = "Deterministic release, asset, and recovery tooling for Forge for iPad"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = ["cryptography>=44"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+forge-release = "forge_release.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]

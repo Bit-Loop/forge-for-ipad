@@ -1,0 +1,94 @@
+schema = 1
+generated_at = "2026-07-12T00:00:00Z"
+
+[[source]]
+id = "ubuntu-26.04-arm64-cloudimg"
+kind = "disk"
+version = "26.04-release-20260627"
+architecture = "aarch64"
+url = "https://cloud-images.ubuntu.com/releases/26.04/release-20260627/ubuntu-26.04-server-cloudimg-arm64.img"
+size = 939805696
+checksum = "3d8db37fa9a8a0c8676dfc0ee3eb41fd0049d66cb055a792bddc8f4123443ae1"
+checksum_algorithm = "sha256"
+metadata_url = "https://cloud-images.ubuntu.com/releases/26.04/release-20260627/SHA256SUMS"
+release_eligible = true
+
+[[source]]
+id = "manjaro-arm-minimal-generic-23.02"
+kind = "compressed-disk"
+version = "23.02"
+architecture = "aarch64"
+url = "https://github.com/manjaro-arm/generic-images/releases/download/23.02/Manjaro-ARM-minimal-generic-23.02.img.xz"
+checksum = "7a496df5a18e7657ff5ae289af2044d74a5ba7ff"
+checksum_algorithm = "sha1"
+metadata_url = "https://github.com/manjaro-arm/generic-images/releases/download/23.02/Manjaro-ARM-minimal-generic-23.02.img.xz.sha1"
+release_eligible = false
+release_blocker = "Upstream publishes only SHA-1. Mirror these exact bytes and add a SHA-256 lock before promotion."
+
+[[source]]
+id = "archlinuxarm-aarch64-20260606"
+kind = "rootfs"
+version = "2026-06-06"
+architecture = "aarch64"
+url = "http://ca.us.mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz"
+size = 818293654
+etag = "6a239325-30c62b96"
+last_modified = "Sat, 06 Jun 2026 03:25:25 GMT"
+signature_url = "http://ca.us.mirror.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz.sig"
+signature_fingerprint = "68B3537F39A313B3E574D06777193F152BDBE6A6"
+checksum_algorithm = "openpgp"
+release_eligible = true
+
+[[source]]
+id = "manjaro-arm-tools"
+kind = "git"
+version = "a978e094b6c49ae47ccf8c11c919fbe1e832b23b"
+architecture = "any"
+url = "https://gitlab.manjaro.org/manjaro-arm/applications/manjaro-arm-tools.git"
+checksum = "a978e094b6c49ae47ccf8c11c919fbe1e832b23b"
+checksum_algorithm = "git-commit"
+release_eligible = true
+
+[[source]]
+id = "rustup-init-1.29.0-aarch64"
+kind = "executable"
+version = "1.29.0"
+architecture = "aarch64"
+url = "https://static.rust-lang.org/rustup/archive/1.29.0/aarch64-unknown-linux-gnu/rustup-init"
+checksum = "9732d6c5e2a098d3521fca8145d826ae0aaa067ef2385ead08e6feac88fa5792"
+checksum_algorithm = "sha256"
+metadata_url = "https://static.rust-lang.org/rustup/archive/1.29.0/aarch64-unknown-linux-gnu/rustup-init.sha256"
+release_eligible = true
+
+[[source]]
+id = "uv-0.11.28-aarch64"
+kind = "compressed-tools"
+version = "0.11.28"
+architecture = "aarch64"
+url = "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-aarch64-unknown-linux-gnu.tar.gz"
+checksum = "03e9fe0a81b0718d0bc84625de3885df6cc3f89a8b6af6121d6b9f6113fb6533"
+checksum_algorithm = "sha256"
+metadata_url = "https://github.com/astral-sh/uv/releases/download/0.11.28/uv-aarch64-unknown-linux-gnu.tar.gz.sha256"
+payload_member = "uv-aarch64-unknown-linux-gnu/uv"
+payload_checksum = "b9f74e398b6b15826a4b68b5a83d039036d47df64013e7faf1a9974ec199c144"
+release_eligible = true
+
+[[source]]
+id = "vcpkg-2026.06.24"
+kind = "git"
+version = "2026.06.24"
+architecture = "any"
+url = "https://github.com/microsoft/vcpkg.git"
+checksum = "cd61e1e26a038e82d6550a3ebbe0fbbfe7da78e3"
+checksum_algorithm = "git-commit"
+release_eligible = true
+
+[[source]]
+id = "bazelisk-1.27.0"
+kind = "git"
+version = "1.27.0"
+architecture = "any"
+url = "https://github.com/bazelbuild/bazelisk.git"
+checksum = "d4deac0ac354f4b46f16607776de26f860352e34"
+checksum_algorithm = "git-commit"
+release_eligible = true

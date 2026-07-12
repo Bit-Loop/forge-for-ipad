@@ -1,0 +1,25 @@
+schema = 1
+id = "cpp"
+label = "C and C++ workstation"
+version = "1"
+seed = true
+depends = ["core"]
+
+[packages]
+apt = [
+  "autoconf", "automake", "bazel-bootstrap", "build-essential", "ccache", "clang",
+  "clang-format", "clang-tidy", "clangd", "cmake", "cppcheck", "g++", "gcc", "gdb",
+  "lld", "lldb", "llvm", "make", "meson", "ninja-build", "pkg-config", "scons",
+  "valgrind"
+]
+pacman = [
+  "autoconf", "automake", "base-devel", "ccache", "clang", "cmake", "cppcheck",
+  "gdb", "lld", "lldb", "llvm", "meson", "ninja", "pkgconf", "scons", "valgrind"
+]
+
+[python_tools]
+packages = ["conan"]
+
+[source_tools]
+vcpkg = "2026.06.24"
+bazelisk = "1.27.0"

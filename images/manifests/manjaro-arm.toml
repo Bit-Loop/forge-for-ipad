@@ -1,0 +1,29 @@
+schema = 1
+id = "manjaro-arm"
+label = "Manjaro ARM Forge Workstation"
+kind = "qemu-vm"
+architecture = "aarch64"
+source = "manjaro-arm-minimal-generic-23.02"
+forge_channel = "stable"
+upstream_channel = "frozen-unstable"
+disk_format = "qcow2"
+disk_size_gib = 64
+firmware = "uefi"
+machine = "virt"
+provisioner = "provision/manjaro.sh"
+packs = ["core", "cpp", "rust", "python", "containers", "xfce", "workstation"]
+seed = false
+release_requires_mirrored_sha256 = true
+
+[runtime]
+default_vcpus = 8
+default_memory_mib = 8192
+minimum_memory_mib = 3072
+network = "virtio-net"
+storage = "virtio-blk"
+display = "virtio-gpu"
+balloon = true
+
+[health]
+command = "/usr/local/bin/forge-guest-health --json"
+required = ["agent", "ssh", "compiler.c", "compiler.cpp", "rust", "python", "docker", "desktop"]

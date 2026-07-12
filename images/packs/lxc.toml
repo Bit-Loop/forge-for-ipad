@@ -1,0 +1,19 @@
+schema = 1
+id = "lxc"
+label = "LXC host"
+version = "1"
+seed = true
+depends = ["core", "containers"]
+distros = ["ubuntu"]
+
+[packages]
+apt = ["bridge-utils", "debootstrap", "dnsmasq-base", "lxc", "lxc-templates", "uidmap"]
+pacman = []
+
+[kernel]
+required = ["cgroup2", "namespaces", "veth"]
+
+[lxc]
+unprivileged = true
+idmap_size = 65536
+default_profile = "archlinuxarm"

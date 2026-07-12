@@ -1,0 +1,5 @@
+version: 1
+bundleID: com.bitloop.forge
+product: ForgeForiPad
+infoPath: Config/ForgeInfo.plist
+iconPath: Resources/AppIcon.png

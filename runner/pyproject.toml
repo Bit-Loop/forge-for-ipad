@@ -1,0 +1,57 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forge-runner"
+version = "0.1.0"
+description = "Durable, content-addressed remote execution service for Forge for iPad"
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bit-Loop" }]
+dependencies = [
+  "fastapi>=0.116,<1",
+  "pydantic>=2.11,<3",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[project.optional-dependencies]
+test = [
+  "build>=1.2,<2",
+  "httpx>=0.28,<1",
+  "mypy>=1.16,<2",
+  "pytest>=8.4,<9",
+  "pytest-asyncio>=1.0,<2",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+forge-runner = "forge_runner.cli:main"
+forge-runner-pair = "forge_runner.cli:pair"
+forge-runner-identity = "forge_runner.cli:identity"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/forge_runner"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "S", "SIM", "RUF"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/forge_runner/cas.py" = ["ASYNC240"]
+"tests/**" = ["S106"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+packages = ["forge_runner"]

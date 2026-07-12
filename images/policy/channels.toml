@@ -1,0 +1,41 @@
+schema = 1
+default = "stable"
+
+[channels.stable]
+description = "Forge-tested, immutable promotion"
+automatic_os_updates = false
+allow_prerelease_toolchains = false
+allow_aur = false
+require_snapshot = true
+require_health_check = true
+promotion_soak_hours = 72
+
+[channels.edge]
+description = "Explicit opt-in for rolling or prerelease packages"
+automatic_os_updates = false
+allow_prerelease_toolchains = true
+allow_aur = true
+require_snapshot = true
+require_health_check = true
+promotion_soak_hours = 0
+
+[distros.ubuntu]
+stable_upstream = "Ubuntu 26.04 Resolute release pockets"
+edge_upstream = "26.04 proposed pockets; never enabled implicitly"
+
+[distros.manjaro]
+stable_upstream = "frozen Forge promotion of an upstream unstable snapshot"
+edge_upstream = "Manjaro ARM unstable"
+note = "Manjaro ARM has no maintained stable branch; Forge stable means tested and frozen, not an upstream stable channel."
+
+[distros.archlinuxarm]
+stable_upstream = "frozen Forge promotion"
+edge_upstream = "rolling latest"
+
+[toolchains.rust]
+stable = "stable"
+edge = "nightly"
+
+[toolchains.python]
+stable = "released CPython selected by project lock"
+edge = "pre-release only when explicitly requested"

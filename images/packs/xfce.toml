@@ -1,0 +1,19 @@
+schema = 1
+id = "xfce"
+label = "Lean XFCE desktop"
+version = "1"
+seed = true
+depends = ["core"]
+
+[packages]
+apt = [
+  "dbus-x11", "lightdm", "mousepad", "network-manager", "spice-vdagent", "thunar",
+  "xfce4", "xfce4-goodies", "xfce4-terminal", "xorg"
+]
+pacman = [
+  "lightdm", "lightdm-gtk-greeter", "mousepad", "networkmanager", "spice-vdagent",
+  "thunar", "xfce4", "xfce4-goodies", "xfce4-terminal", "xorg-server", "xorg-xinit"
+]
+
+[services]
+enable = ["NetworkManager", "lightdm"]

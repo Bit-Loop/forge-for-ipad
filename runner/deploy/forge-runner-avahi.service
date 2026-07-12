@@ -1,0 +1,11 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+<service-group>
+  <name replace-wildcards="yes">Forge Runner on %h</name>
+  <service>
+    <type>_forge-runner._tcp</type>
+    <port>__FORGE_PORT__</port>
+    <txt-record>api=forge/v1</txt-record>
+    <txt-record>instance_id=__FORGE_INSTANCE_ID__</txt-record>
+  </service>
+</service-group>

@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  swift-core:
+    name: Swift core
+    runs-on: ubuntu-24.04
+    container: swift:6.2-noble
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test platform-neutral core
+        env:
+          FORGE_CORE_ONLY: "1"
+        run: swift test --parallel
+
+  runner:
+    name: Runner
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: runner/pyproject.toml
+      - run: python -m pip install -e './runner[test]'
+      - name: Lint and type-check
+        run: |
+          python -m ruff check runner/src runner/tests
+          python -m ruff format --check runner/src runner/tests
+          cd runner
+          python -m mypy src
+      - name: Test
+        run: python -m pytest runner/tests
+
+  release:
+    name: Release contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: release/pyproject.toml
+      - run: python -m pip install -e './release[test]'
+      - run: python -m pytest release/tests
+
+  images-and-guest:
+    name: Image and guest contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Validate without downloads
+        run: |
+          python images/scripts/imagectl.py validate
+          python -m unittest discover -s images/tests -v
+          python -m unittest discover -s guest/tests -v
+
+  accelerator-bridge:
+    name: Accelerator bridge
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: bridge/python/pyproject.toml
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - run: python -m pip install -e './bridge/python[test]'
+      - name: Python, C, and C++ contracts
+        run: |
+          python -m ruff check bridge/python
+          python -m mypy --config-file bridge/python/pyproject.toml bridge/python/src
+          python -m unittest discover -s bridge/python/tests -v
+      - name: Rust contracts
+        run: |
+          cargo fmt --manifest-path bridge/rust/Cargo.toml -- --check
+          cargo test --locked --manifest-path bridge/rust/Cargo.toml
+
+  repository-quality:
+    name: Docs, workflows, and shell
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+      - name: Markdown style and links
+        run: |
+          npx --yes markdownlint-cli2@0.18.1 --config .github/forge.markdownlint-cli2.jsonc \
+            CONTRIBUTING.md SECURITY.md 'docs/**/*.md'
+          python .github/scripts/check_docs.py README.md CONTRIBUTING.md SECURITY.md docs/*.md
+      - name: Workflow syntax
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+          "$(go env GOPATH)/bin/actionlint"
+      - name: Shell style and syntax
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes shellcheck
+          mapfile -d '' scripts < <(
+            find tools images guest runner runtime -type f -name '*.sh' -print0
+          )
+          scripts+=(
+            guest/bin/forge-guest-bootstrap
+            guest/bin/forge-guest-health
+            guest/bin/forge-pack
+          )
+          shellcheck "${scripts[@]}"
+          for script in "${scripts[@]}"; do
+            if head -n 1 "$script" | grep -q 'bash'; then
+              bash -n "$script"
+            else
+              dash -n "$script"
+            fi
+          done

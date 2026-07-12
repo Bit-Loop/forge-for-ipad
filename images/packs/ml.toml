@@ -1,0 +1,19 @@
+schema = 1
+id = "ml"
+label = "Heavy ARM64 machine-learning stack"
+version = "1"
+seed = false
+depends = ["workstation"]
+availability = "post-install; platform wheels are probed before transaction"
+
+[packages]
+apt = ["libopenblas-dev", "libopenmpi-dev", "libprotobuf-dev"]
+pacman = ["openblas", "openmpi", "protobuf"]
+
+[python_environment]
+packages = [
+  "accelerate", "datasets", "huggingface-hub", "jax", "onnx", "onnxruntime",
+  "safetensors", "sentencepiece", "tensorflow", "torch", "torchvision", "transformers"
+]
+binary_only = true
+note = "Install only packages with compatible aarch64 wheels; report unavailable accelerators accurately."

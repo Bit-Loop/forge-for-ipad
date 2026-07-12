@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "forge-accelerator"
+version = "1.0.0"
+description = "Typed guest client for the Forge Core ML and Metal accelerator bridge"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Bit-Loop" }]
+dependencies = []
+
+[project.optional-dependencies]
+test = [
+  "jsonschema>=4.23,<5",
+  "mypy>=1.16,<2",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+forge-accelerator = "forge_accelerator.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/forge_accelerator"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "S", "SIM", "RUF"]
+ignore = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+packages = ["forge_accelerator"]

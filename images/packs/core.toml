@@ -1,0 +1,22 @@
+schema = 1
+id = "core"
+label = "Forge guest base"
+version = "1"
+seed = true
+depends = []
+
+[packages]
+apt = [
+  "bash-completion", "ca-certificates", "cloud-init", "curl", "dbus-user-session",
+  "file", "git", "gnupg", "iproute2", "jq", "less", "locales", "man-db",
+  "neovim", "openssh-server", "procps", "rsync", "socat", "sudo", "tmux",
+  "unzip", "vim", "wget", "xz-utils", "zip", "zstd"
+]
+pacman = [
+  "bash-completion", "ca-certificates", "curl", "file", "git", "gnupg", "inetutils",
+  "iproute2", "jq", "less", "man-db", "neovim", "openssh", "procps-ng", "rsync",
+  "socat", "sudo", "tmux", "unzip", "vim", "wget", "which", "xz", "zip", "zstd"
+]
+
+[services]
+enable = ["forge-guest-agent", "sshd"]

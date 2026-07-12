@@ -1,0 +1,24 @@
+schema = 1
+id = "containers"
+label = "Container workstation"
+version = "1"
+seed = true
+depends = ["core"]
+
+[packages]
+apt = [
+  "buildah", "containernetworking-plugins", "crun", "fuse-overlayfs", "podman",
+  "podman-compose", "slirp4netns", "uidmap"
+]
+pacman = [
+  "buildah", "cni-plugins", "crun", "docker", "docker-buildx", "docker-compose",
+  "fuse-overlayfs", "podman", "slirp4netns"
+]
+
+[docker]
+ubuntu_repository = "https://download.docker.com/linux/ubuntu"
+packages = ["containerd.io", "docker-buildx-plugin", "docker-ce", "docker-ce-cli", "docker-compose-plugin"]
+rootless = true
+
+[kernel]
+required = ["cgroup2", "namespaces", "overlayfs", "seccomp", "veth"]

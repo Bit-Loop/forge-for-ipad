@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "agent": {
+    "protocol": "unix-jsonl",
+    "methods": ["capabilities", "checkpoint", "health", "ping"]
+  },
+  "execution": {
+    "protocol": "ssh",
+    "features": ["exec", "pty", "sftp", "stdio-forwarding"]
+  },
+  "accelerator": {
+    "endpoint": "http://10.0.2.2:4777/accelerator/v1",
+    "authentication": "per-boot-bearer"
+  }
+}

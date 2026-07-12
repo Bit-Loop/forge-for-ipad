@@ -1,0 +1,22 @@
+schema = 1
+id = "archlinuxarm-lxc"
+label = "Arch Linux ARM LXC"
+kind = "lxc-rootfs"
+architecture = "aarch64"
+source = "archlinuxarm-aarch64-20260606"
+forge_channel = "stable"
+upstream_channel = "frozen-rolling"
+rootfs_format = "tar.zst"
+provisioner = "provision/arch-lxc.sh"
+packs = ["core", "cpp", "rust", "python"]
+seed = false
+
+[container]
+unprivileged = true
+idmap_size = 65536
+nesting = true
+network = "veth"
+
+[health]
+command = "/usr/local/bin/forge-guest-health --json"
+required = ["agent", "compiler.c", "compiler.cpp", "rust", "python"]

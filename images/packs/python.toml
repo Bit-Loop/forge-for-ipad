@@ -1,0 +1,28 @@
+schema = 1
+id = "python"
+label = "Python workstation"
+version = "1"
+seed = true
+depends = ["core", "cpp"]
+
+[packages]
+apt = [
+  "libbz2-dev", "libffi-dev", "liblzma-dev", "libncurses-dev", "libreadline-dev",
+  "libsqlite3-dev", "libssl-dev", "python3", "python3-dev", "python3-pip", "python3-venv",
+  "tk-dev"
+]
+pacman = ["python", "python-pip", "tk"]
+
+[uv]
+source = "uv-0.11.28-aarch64"
+channel = "stable"
+managed_python = true
+
+[python_tools]
+packages = [
+  "black", "debugpy", "ipykernel", "jupyterlab", "mypy", "nox", "poetry",
+  "pyright", "pytest", "ruff", "tox"
+]
+
+[python_environment]
+packages = ["pytest-cov"]

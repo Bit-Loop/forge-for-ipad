@@ -1,0 +1,27 @@
+schema = 1
+id = "workstation"
+label = "Complete development workstation"
+version = "1"
+seed = false
+depends = ["core", "cpp", "rust", "python", "containers", "xfce"]
+
+[packages]
+apt = [
+  "adb", "bear", "bison", "doxygen", "flex", "gfortran", "graphviz", "htop",
+  "imagemagick", "libboost-all-dev", "libeigen3-dev", "libfmt-dev", "libgtk-4-dev",
+  "libopencv-dev", "libpq-dev", "libprotobuf-dev", "libsqlite3-dev", "libxml2-dev",
+  "libyaml-dev", "mariadb-client", "postgresql-client", "protobuf-compiler", "shellcheck",
+  "sqlite3", "strace", "tree"
+]
+pacman = [
+  "android-tools", "bear", "bison", "boost", "doxygen", "eigen", "flex", "fmt",
+  "gcc-fortran", "graphviz", "gtk4", "htop", "imagemagick", "mariadb-clients", "opencv",
+  "postgresql-libs", "protobuf", "shellcheck", "sqlite", "strace", "tree", "yaml-cpp"
+]
+
+[python_environment]
+packages = [
+  "aiohttp", "django", "fastapi", "flask", "httpx", "matplotlib", "numpy", "pandas",
+  "pillow", "polars", "psycopg", "pydantic", "scikit-learn", "scipy", "sqlalchemy",
+  "typer", "uvicorn"
+]

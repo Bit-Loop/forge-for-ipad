@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+if [ "$(id -u)" -ne 0 ]; then
+    echo "forge-guest-bootstrap: must run as root" >&2
+    exit 1
+fi
+
+install -d -m 0700 /run/forge
+
+if [ ! -s /etc/machine-id ]; then
+    systemd-machine-id-setup
+fi
+
+if ! find /etc/ssh -maxdepth 1 -name 'ssh_host_*_key' -type f -size +0c | grep -q .; then
+    ssh-keygen -A
+fi
+
+if ! id forge >/dev/null 2>&1; then
+    useradd --create-home --shell /bin/bash forge
+fi
+
+install -d -o forge -g forge -m 0750 /home/forge/Workspaces /home/forge/.cache/forge
+systemctl enable sshd.service 2>/dev/null || systemctl enable ssh.service
+systemctl enable forge-guest-agent.service
+
+echo "forge-guest-bootstrap: ready"

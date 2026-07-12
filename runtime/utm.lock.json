@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "repository": "https://github.com/utmapp/UTM.git",
+  "tag": "v4.7.5",
+  "commit": "048ca7498ea3a374439149d51739d94c5300bcda",
+  "qemu_version": "10.0.2",
+  "ios_schemes": ["iOS", "iOS-SE"],
+  "license": "Apache-2.0",
+  "release_gate": "Bundle complete UTM/QEMU dependency notices and corresponding-source offer before redistribution."
+}

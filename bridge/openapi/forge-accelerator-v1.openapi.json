@@ -1,0 +1,307 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Forge Guest Accelerator Bridge",
+    "version": "1.0.0",
+    "description": "Guest-only, asynchronous Core ML and Metal bridge. All handles and bearer tokens are scoped to one host boot."
+  },
+  "jsonSchemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "servers": [
+    {
+      "url": "http://10.0.2.2:4777/accelerator/v1",
+      "description": "Fixed QEMU guest-to-host authority"
+    }
+  ],
+  "security": [{ "perBootBearer": [] }],
+  "paths": {
+    "/capabilities": {
+      "parameters": [{ "$ref": "#/components/parameters/ProtocolVersion" }],
+      "get": {
+        "operationId": "getCapabilities",
+        "summary": "Discover this boot's features, limits, and handle scope",
+        "responses": {
+          "200": {
+            "description": "Capabilities",
+            "headers": { "X-Forge-Boot-ID": { "$ref": "#/components/headers/BootId" } },
+            "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/Capabilities" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/scratch/verify": {
+      "parameters": [{ "$ref": "#/components/parameters/ProtocolVersion" }],
+      "post": {
+        "operationId": "verifyScratchObject",
+        "summary": "Resolve and hash-check an object beneath the shared scratch root",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/ScratchVerifyRequest" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Verified reference",
+            "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/ScratchReference" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": { "$ref": "#/components/responses/LimitExceeded" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/coreml/compilations": {
+      "parameters": [{ "$ref": "#/components/parameters/ProtocolVersion" }],
+      "post": {
+        "operationId": "compileCoreMLModel",
+        "summary": "Compile or import a Core ML model",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/CoreMLCompileRequest" } } }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/AcceptedJob" },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": { "$ref": "#/components/responses/LimitExceeded" },
+          "422": { "$ref": "#/components/responses/Error" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/coreml/predictions": {
+      "parameters": [{ "$ref": "#/components/parameters/ProtocolVersion" }],
+      "post": {
+        "operationId": "predictCoreML",
+        "summary": "Run Core ML prediction asynchronously",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/CoreMLPredictRequest" } } }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/AcceptedJob" },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "413": { "$ref": "#/components/responses/LimitExceeded" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/coreml/models/{model_id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/ProtocolVersion" },
+        { "$ref": "#/components/parameters/ModelId" }
+      ],
+      "delete": {
+        "operationId": "releaseCoreMLModel",
+        "summary": "Idempotently release a compiled Core ML model handle",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Released" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/metal/libraries": {
+      "parameters": [{ "$ref": "#/components/parameters/ProtocolVersion" }],
+      "post": {
+        "operationId": "compileMetalLibrary",
+        "summary": "Compile a Metal source library",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/MetalCompileRequest" } } }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/AcceptedJob" },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "413": { "$ref": "#/components/responses/LimitExceeded" },
+          "422": { "$ref": "#/components/responses/Error" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/metal/dispatches": {
+      "parameters": [{ "$ref": "#/components/parameters/ProtocolVersion" }],
+      "post": {
+        "operationId": "dispatchMetalKernel",
+        "summary": "Dispatch a compiled Metal function asynchronously",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/MetalDispatchRequest" } } }
+        },
+        "responses": {
+          "202": { "$ref": "#/components/responses/AcceptedJob" },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "413": { "$ref": "#/components/responses/LimitExceeded" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/metal/libraries/{library_id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/ProtocolVersion" },
+        { "$ref": "#/components/parameters/LibraryId" }
+      ],
+      "delete": {
+        "operationId": "releaseMetalLibrary",
+        "summary": "Idempotently release a compiled Metal library handle",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Released" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/jobs/{job_id}": {
+      "parameters": [
+        { "$ref": "#/components/parameters/ProtocolVersion" },
+        { "$ref": "#/components/parameters/JobId" }
+      ],
+      "get": {
+        "operationId": "getJob",
+        "summary": "Read current job state and terminal result",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Job" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "410": { "$ref": "#/components/responses/Error" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "delete": {
+        "operationId": "cancelJob",
+        "summary": "Idempotently request cancellation",
+        "responses": {
+          "200": { "$ref": "#/components/responses/Job" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "410": { "$ref": "#/components/responses/Error" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/jobs/{job_id}/events": {
+      "parameters": [
+        { "$ref": "#/components/parameters/ProtocolVersion" },
+        { "$ref": "#/components/parameters/JobId" }
+      ],
+      "get": {
+        "operationId": "getJobEvents",
+        "summary": "Read an ordered, resumable page of job events",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "description": "Return events with a sequence greater than this value",
+            "schema": { "type": "integer", "minimum": 0, "default": 0 }
+          },
+          {
+            "name": "wait_seconds",
+            "in": "query",
+            "required": false,
+            "description": "Long-poll duration; zero returns immediately",
+            "schema": { "type": "number", "minimum": 0, "maximum": 30, "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ordered event page",
+            "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/JobEventPage" } } }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "410": { "$ref": "#/components/responses/Error" },
+          "default": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "perBootBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "opaque-256-bit-per-boot-token",
+        "description": "Injected into the active guest at boot; never place this value in a URL."
+      }
+    },
+    "parameters": {
+      "ProtocolVersion": {
+        "name": "X-Forge-Protocol-Version",
+        "in": "header",
+        "required": true,
+        "description": "Wire contract version; unsupported versions return a structured error",
+        "schema": { "type": "string", "const": "1.0" }
+      },
+      "JobId": {
+        "name": "job_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "ModelId": {
+        "name": "model_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "LibraryId": {
+        "name": "library_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "format": "uuid" }
+      }
+    },
+    "headers": {
+      "BootId": {
+        "description": "Scope of bearer token and compiled handles",
+        "schema": { "type": "string", "format": "uuid" }
+      },
+      "RequestId": {
+        "description": "Server request identifier for local diagnostics",
+        "schema": { "type": "string", "format": "uuid" }
+      }
+    },
+    "responses": {
+      "AcceptedJob": {
+        "description": "Accepted asynchronous operation",
+        "headers": {
+          "Location": { "description": "Canonical job URL", "schema": { "type": "string", "format": "uri-reference" } },
+          "X-Request-ID": { "$ref": "#/components/headers/RequestId" }
+        },
+        "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/Job" } } }
+      },
+      "Job": {
+        "description": "Job state",
+        "headers": { "X-Request-ID": { "$ref": "#/components/headers/RequestId" } },
+        "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/Job" } } }
+      },
+      "Released": {
+        "description": "Handle was released, or was already absent",
+        "headers": { "X-Request-ID": { "$ref": "#/components/headers/RequestId" } },
+        "content": { "application/json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/ReleaseResponse" } } }
+      },
+      "Unauthorized": {
+        "description": "Missing, stale, or invalid per-boot bearer token",
+        "headers": { "X-Request-ID": { "$ref": "#/components/headers/RequestId" } },
+        "content": { "application/problem+json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/ErrorEnvelope" } } }
+      },
+      "LimitExceeded": {
+        "description": "Advertised host limit exceeded",
+        "headers": { "X-Request-ID": { "$ref": "#/components/headers/RequestId" } },
+        "content": { "application/problem+json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/ErrorEnvelope" } } }
+      },
+      "Error": {
+        "description": "Structured bridge error",
+        "headers": { "X-Request-ID": { "$ref": "#/components/headers/RequestId" } },
+        "content": { "application/problem+json": { "schema": { "$ref": "../schema/forge-accelerator-v1.schema.json#/$defs/ErrorEnvelope" } } }
+      }
+    }
+  }
+}

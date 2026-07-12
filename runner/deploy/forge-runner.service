@@ -1,0 +1,20 @@
+[Unit]
+Description=Forge for iPad remote execution runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-%h/.config/forge-runner/env
+ExecStart=%h/.local/share/forge-runner/app/.venv/bin/forge-runner
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/.local/share/forge-runner %h/.local/share/containers -%t/containers
+UMask=0077
+
+[Install]
+WantedBy=default.target

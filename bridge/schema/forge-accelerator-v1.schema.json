@@ -1,0 +1,315 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forge.bitloop.dev/schemas/accelerator/v1.json",
+  "title": "Forge Accelerator Bridge v1",
+  "type": "object",
+  "$defs": {
+    "ProtocolVersion": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "Identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "ComputeUnits": {
+      "type": "string",
+      "enum": ["cpu", "cpu_gpu", "cpu_ane", "all"]
+    },
+    "DataType": {
+      "type": "string",
+      "enum": ["bool", "int8", "uint8", "int16", "uint16", "int32", "uint32", "int64", "uint64", "float16", "float32", "float64"]
+    },
+    "ScratchReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relative_path", "sha256", "size"],
+      "properties": {
+        "relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[^\\u0000]+$"
+        },
+        "sha256": { "$ref": "#/$defs/Sha256" },
+        "size": { "type": "integer", "minimum": 0, "maximum": 1099511627776 },
+        "media_type": { "type": "string", "maxLength": 128, "default": "application/octet-stream" },
+        "delete_after_read": { "type": "boolean", "default": false }
+      }
+    },
+    "InlineTensor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage", "dtype", "shape", "data_base64"],
+      "properties": {
+        "storage": { "const": "inline" },
+        "dtype": { "$ref": "#/$defs/DataType" },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "type": "integer", "minimum": 0, "maximum": 2147483647 }
+        },
+        "data_base64": { "type": "string", "contentEncoding": "base64" }
+      }
+    },
+    "ScratchTensor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storage", "dtype", "shape", "object"],
+      "properties": {
+        "storage": { "const": "scratch" },
+        "dtype": { "$ref": "#/$defs/DataType" },
+        "shape": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "type": "integer", "minimum": 0, "maximum": 2147483647 }
+        },
+        "object": { "$ref": "#/$defs/ScratchReference" },
+        "byte_offset": { "type": "integer", "minimum": 0, "default": 0 },
+        "byte_length": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "Tensor": {
+      "oneOf": [
+        { "$ref": "#/$defs/InlineTensor" },
+        { "$ref": "#/$defs/ScratchTensor" }
+      ],
+      "discriminator": { "propertyName": "storage" }
+    },
+    "TensorMap": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 256,
+      "propertyNames": { "$ref": "#/$defs/Identifier" },
+      "additionalProperties": { "$ref": "#/$defs/Tensor" }
+    },
+    "Vector3": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "prefixItems": [
+        { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        { "type": "integer", "minimum": 1, "maximum": 4294967295 },
+        { "type": "integer", "minimum": 1, "maximum": 4294967295 }
+      ],
+      "items": false
+    },
+    "Limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_request_bytes", "max_inline_bytes", "max_scratch_object_bytes", "max_tensor_rank", "max_inputs", "max_outputs", "max_concurrent_jobs", "max_model_handles", "max_library_handles", "max_model_bytes", "max_metal_source_bytes", "max_buffer_bytes", "job_retention_seconds"],
+      "properties": {
+        "max_request_bytes": { "type": "integer", "minimum": 1024 },
+        "max_inline_bytes": { "type": "integer", "minimum": 0 },
+        "max_scratch_object_bytes": { "type": "integer", "minimum": 0 },
+        "max_tensor_rank": { "type": "integer", "minimum": 1, "maximum": 16 },
+        "max_inputs": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "max_outputs": { "type": "integer", "minimum": 1, "maximum": 256 },
+        "max_concurrent_jobs": { "type": "integer", "minimum": 1 },
+        "max_model_handles": { "type": "integer", "minimum": 1 },
+        "max_library_handles": { "type": "integer", "minimum": 1 },
+        "max_model_bytes": { "type": "integer", "minimum": 0 },
+        "max_metal_source_bytes": { "type": "integer", "minimum": 0 },
+        "max_buffer_bytes": { "type": "integer", "minimum": 0 },
+        "job_retention_seconds": { "type": "integer", "minimum": 60 }
+      }
+    },
+    "Capabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol_version", "server_version", "boot_id", "compute_units", "coreml", "metal", "scratch", "limits"],
+      "properties": {
+        "protocol_version": { "$ref": "#/$defs/ProtocolVersion" },
+        "server_version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "boot_id": { "type": "string", "format": "uuid" },
+        "device_name": { "type": "string", "maxLength": 128 },
+        "compute_units": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/ComputeUnits" }
+        },
+        "coreml": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["available", "formats"],
+          "properties": {
+            "available": { "type": "boolean" },
+            "formats": { "type": "array", "uniqueItems": true, "items": { "const": "mlmodel" } }
+          }
+        },
+        "metal": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["available", "language_version", "families"],
+          "properties": {
+            "available": { "type": "boolean" },
+            "language_version": { "type": "string", "maxLength": 32 },
+            "families": { "type": "array", "uniqueItems": true, "items": { "type": "string", "maxLength": 64 } }
+          }
+        },
+        "scratch": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["guest_root", "requires_sha256"],
+          "properties": {
+            "guest_root": { "type": "string", "pattern": "^/", "maxLength": 1024 },
+            "requires_sha256": { "const": true }
+          }
+        },
+        "limits": { "$ref": "#/$defs/Limits" }
+      }
+    },
+    "ScratchVerifyRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["object"],
+      "properties": { "object": { "$ref": "#/$defs/ScratchReference" } }
+    },
+    "CoreMLCompileRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "format"],
+      "properties": {
+        "source": { "$ref": "#/$defs/ScratchReference" },
+        "format": { "const": "mlmodel" },
+        "compute_units": { "$ref": "#/$defs/ComputeUnits" }
+      }
+    },
+    "CoreMLPredictRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model_id", "inputs"],
+      "properties": {
+        "model_id": { "type": "string", "format": "uuid" },
+        "inputs": { "$ref": "#/$defs/TensorMap" },
+        "compute_units": { "$ref": "#/$defs/ComputeUnits" },
+        "output_delivery": { "enum": ["auto", "inline", "scratch"], "default": "auto" },
+        "max_inline_bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "MetalCompileRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source"],
+      "properties": {
+        "source": {
+          "oneOf": [
+            { "type": "object", "additionalProperties": false, "required": ["storage", "text"], "properties": { "storage": { "const": "inline" }, "text": { "type": "string" } } },
+            { "type": "object", "additionalProperties": false, "required": ["storage", "object"], "properties": { "storage": { "const": "scratch" }, "object": { "$ref": "#/$defs/ScratchReference" } } }
+          ]
+        },
+        "language_version": { "type": "string", "maxLength": 32 },
+        "fast_math": { "type": "boolean", "default": true },
+        "macros": { "type": "object", "maxProperties": 128, "additionalProperties": { "type": ["string", "number", "boolean"] } }
+      }
+    },
+    "MetalBuffer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "access", "tensor"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0, "maximum": 30 },
+        "access": { "enum": ["read", "write", "read_write"] },
+        "tensor": { "$ref": "#/$defs/Tensor" }
+      }
+    },
+    "MetalDispatchRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["library_id", "function", "grid", "threadgroup", "buffers"],
+      "properties": {
+        "library_id": { "type": "string", "format": "uuid" },
+        "function": { "$ref": "#/$defs/Identifier" },
+        "grid": { "$ref": "#/$defs/Vector3" },
+        "threadgroup": { "$ref": "#/$defs/Vector3" },
+        "buffers": { "type": "array", "maxItems": 31, "items": { "$ref": "#/$defs/MetalBuffer" } },
+        "constants": { "type": "object", "maxProperties": 128, "additionalProperties": { "type": ["string", "number", "boolean"] } },
+        "output_delivery": { "enum": ["auto", "inline", "scratch"], "default": "auto" }
+      }
+    },
+    "JobState": {
+      "type": "string",
+      "enum": ["queued", "running", "succeeded", "failed", "cancelled"]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message", "retriable", "request_id"],
+      "properties": {
+        "code": { "enum": ["invalid_request", "unauthorized", "forbidden_authority", "not_found", "unsupported", "limit_exceeded", "scratch_mismatch", "compile_failed", "execution_failed", "cancelled", "expired_handle", "busy", "internal"] },
+        "message": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "retriable": { "type": "boolean" },
+        "request_id": { "type": "string", "format": "uuid" },
+        "details": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "JobResult": {
+      "oneOf": [
+        { "type": "object", "additionalProperties": false, "required": ["kind", "model_id"], "properties": { "kind": { "const": "coreml_compilation" }, "model_id": { "type": "string", "format": "uuid" }, "inputs": { "type": "array", "items": { "$ref": "#/$defs/Identifier" } }, "outputs": { "type": "array", "items": { "$ref": "#/$defs/Identifier" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["kind", "outputs"], "properties": { "kind": { "const": "coreml_prediction" }, "outputs": { "$ref": "#/$defs/TensorMap" } } },
+        { "type": "object", "additionalProperties": false, "required": ["kind", "library_id", "functions"], "properties": { "kind": { "const": "metal_compilation" }, "library_id": { "type": "string", "format": "uuid" }, "functions": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/Identifier" } } } },
+        { "type": "object", "additionalProperties": false, "required": ["kind", "outputs", "gpu_time_ns"], "properties": { "kind": { "const": "metal_dispatch" }, "outputs": { "type": "object", "additionalProperties": { "$ref": "#/$defs/Tensor" } }, "gpu_time_ns": { "type": "integer", "minimum": 0 } } }
+      ],
+      "discriminator": { "propertyName": "kind" }
+    },
+    "Job": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "operation", "state", "created_at", "updated_at"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "operation": { "enum": ["coreml_compile", "coreml_predict", "metal_compile", "metal_dispatch"] },
+        "state": { "$ref": "#/$defs/JobState" },
+        "progress": { "type": "number", "minimum": 0, "maximum": 1 },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "result": { "$ref": "#/$defs/JobResult" },
+        "error": { "$ref": "#/$defs/Error" }
+      }
+    },
+    "JobEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence", "at", "kind"],
+      "properties": {
+        "sequence": { "type": "integer", "minimum": 1 },
+        "at": { "type": "string", "format": "date-time" },
+        "kind": { "enum": ["queued", "started", "progress", "diagnostic", "completed", "failed", "cancelled"] },
+        "progress": { "type": "number", "minimum": 0, "maximum": 1 },
+        "message": { "type": "string", "maxLength": 4096 },
+        "diagnostic": { "type": "object", "additionalProperties": true }
+      }
+    },
+    "JobEventPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["events", "next_after", "terminal"],
+      "properties": {
+        "events": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/JobEvent" } },
+        "next_after": { "type": "integer", "minimum": 0 },
+        "terminal": { "type": "boolean" }
+      }
+    },
+    "ReleaseResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["released"],
+      "properties": { "released": { "type": "boolean" } }
+    },
+    "ErrorEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error"],
+      "properties": { "error": { "$ref": "#/$defs/Error" } }
+    }
+  }
+}
