@@ -6,7 +6,9 @@ usage() {
     exit 64
 }
 
-[ "$#" -ge 3 ] && [ "$#" -le 4 ] || usage
+if [ "$#" -lt 3 ] || [ "$#" -gt 4 ]; then
+    usage
+fi
 image_id=$1
 source_file=$2
 output_directory=$3
